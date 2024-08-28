@@ -24,4 +24,8 @@ class Loginform
     public function errors() {
         return $this -> errors;
     }
+
+    public function error($field, $message) {
+        return $this -> errors[$field] = $message;
+    }
 }

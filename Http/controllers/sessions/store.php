@@ -1,57 +1,34 @@
 <?php
 
-use Core\App;
-use Core\Validator;
-use Core\Database;
+use Core\Authenticator;
 use Http\Forms\Loginform;
-
-$db = App::resolve(Database::class);
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
 $form = new Loginform();
 
-if (!$form->validate($email, $password)) {
+if ($form->validate($email, $password)) {
 
-    return view("sessions/create.view.php", [
-        'errors' => $form -> errors(),
-        'flag' => true,
-    ]);
+    $auth = new Authenticator;
+    
+    if (!$auth -> email($email)) {
+        
+        $form -> error('email', 'No matching account found for this email address');
 
+        return view("sessions/create.view.php", [
+            'errors' => $form -> errors(),
+            'flag' => false,
+        ]);
+    }
+    
+    // login success
+    if ($auth -> attempt($email, $password)) redirect('/');
+    
+    $form -> error('password', 'No matching password');
 };
 
-// validate match email
-$user = $db->query('select * from users where email = :email', [
-    'email' => $email,
-])->find();
-
-if (!$user) {
-    return view("sessions/create.view.php", [
-        'errors' => [
-            'email' => 'No matching account found for this email address',
-        ],
-
-        'flag' => true,
-    ]);
-}
-
-// check match password
-if (password_verify($password, $user['password'])) {
-    login([
-        'email' => $email,
-    ]);
-
-    header('location: /');
-    exit;
-    
-} else {
-
-    return view("sessions/create.view.php", [
-        'errors' => [
-            'password' => 'No matching password',
-        ],
-
-        'flag' => false,
-    ]);
-}
+return view("sessions/create.view.php", [
+    'errors' => $form -> errors(),
+    'flag' => true,
+]);
