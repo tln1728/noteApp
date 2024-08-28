@@ -18,6 +18,10 @@ if ($form->validate($email, $password)) {
         $form -> error('email', 'No matching account found for this email address');
         
         Session::flash('errors', $form -> errors());
+        Session::flash('old', [
+            'email' => $_POST['email']
+        ]);
+
         return redirect('/login');
     }
     
@@ -27,7 +31,9 @@ if ($form->validate($email, $password)) {
     $form -> error('password', 'No matching password');
 };
 
-// $_SESSION['_flash']['errors'] = $form -> errors();
 Session::flash('errors', $form -> errors());
+Session::flash('old', [
+    'email' => $_POST['email']
+]);
 
 return redirect('/login');

@@ -30,7 +30,6 @@ if (!Validator::string($password, 3, 255)) {
 if (!empty($errors)) {
     return view("registration/create.view.php", [
         'errors' => $errors,
-        'flag' => true,
     ]);
 }
 
