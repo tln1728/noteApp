@@ -1,35 +1,30 @@
-<?php 
+<?php
 
 use Core\App;
 use Core\Validator;
 use Core\Database;
+use Http\Forms\Loginform;
 
 $db = App::resolve(Database::class);
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-// validate null
-$errors = [];
-if (!Validator::email($email)) {
-    $errors['email'] = 'Please provide a valid email address.';
-}
+$form = new Loginform();
 
-if (!Validator::string($password)) {
-    $errors['password'] = 'Please provide a password';
-}
+if (!$form->validate($email, $password)) {
 
-if (!empty($errors)) {
     return view("sessions/create.view.php", [
-        'errors' => $errors,
+        'errors' => $form -> errors(),
         'flag' => true,
     ]);
-}
+
+};
 
 // validate match email
-$user = $db -> query('select * from users where email = :email', [
+$user = $db->query('select * from users where email = :email', [
     'email' => $email,
-]) -> find();
+])->find();
 
 if (!$user) {
     return view("sessions/create.view.php", [
@@ -49,7 +44,7 @@ if (password_verify($password, $user['password'])) {
 
     header('location: /');
     exit;
-
+    
 } else {
 
     return view("sessions/create.view.php", [
@@ -59,5 +54,4 @@ if (password_verify($password, $user['password'])) {
 
         'flag' => false,
     ]);
-    
 }
