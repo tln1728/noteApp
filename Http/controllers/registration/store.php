@@ -44,5 +44,4 @@ login([
     'email' => $email,
 ]);
 
-header('location: /');
-exit();
+redirect('/');

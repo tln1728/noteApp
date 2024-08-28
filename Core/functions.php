@@ -14,7 +14,7 @@ function pd($value)
     echo "<pre>";
     print_r($value);
     echo "</pre>";
-    die;
+    // die;
 }
 
 function isUrl($value)
