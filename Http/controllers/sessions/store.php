@@ -13,7 +13,7 @@ if ($form->validate($email, $password)) {
 
     $auth = new Authenticator;
     
-    if (!$auth -> email($email)) {
+    if (!$auth -> match_email($email)) {
         
         $form -> error('email', 'No matching account found for this email address');
         

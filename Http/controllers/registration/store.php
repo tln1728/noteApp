@@ -1,46 +1,44 @@
 <?php
 
 use Core\App;
-use Core\Validator;
+use Core\Authenticator;
 use Core\Database;
-
-$db = App::resolve(Database::class);
+use Core\Session;
+use Http\Forms\Loginform;
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$ck_mail = $db->query('select * from users where email = :email', [
-    'email' => $email
-])->find();
+$form = new Loginform();
 
-// validate
-$errors = [];
-if (!Validator::email($email)) {
-    $errors['email'] = 'Please provide a valid email address.';
+if ($form->validate_register($email, $password)) {
+
+    $auth = new Authenticator;
+
+    if ($auth -> match_email($email)) {
+        $form->error('email', 'This email is already in use');
+
+        Session::flash('errors', $form->errors());
+        Session::flash('old', [
+            'email' => $_POST['email']
+        ]);
+
+        return redirect('/register');
+
+    } else {
+        // success register
+        App::resolve(Database::class) -> query('INSERT INTO users(email, password) VALUES(:email, :password)', [
+            'email' => $email,
+            'password' => password_hash($password, PASSWORD_BCRYPT),
+        ]);
+        $auth -> login(['email' => $email]);
+        return redirect('/');
+    }
 }
 
-if ($ck_mail) {
-    $errors['email'] = 'This email is already in use';
-}
-
-if (!Validator::string($password, 3, 255)) {
-    $errors['password'] = 'Please provide a password of at least 3 characters.';
-}
-
-if (!empty($errors)) {
-    return view("registration/create.view.php", [
-        'errors' => $errors,
-    ]);
-}
-
-// register
-$db->query('INSERT INTO users(email, password) VALUES(:email, :password)', [
-    'email' => $email,
-    'password' => password_hash($password, PASSWORD_BCRYPT),
+Session::flash('errors', $form->errors());
+Session::flash('old', [
+    'email' => $_POST['email']
 ]);
 
-login([
-    'email' => $email,
-]);
-
-redirect('/');
+return redirect('/register');

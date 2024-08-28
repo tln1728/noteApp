@@ -26,7 +26,7 @@ class Authenticator
         return false;
     }
 
-    public function email($email) {
+    public function match_email($email) {
         $user = App::resolve(Database::class)
         ->query('select * from users where email = :email', ['email' => $email])
         ->find();
