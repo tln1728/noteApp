@@ -2,19 +2,19 @@
 
 use Core\Response;
 
-function dd($value)
+function dd(...$value)
 {
     echo "<pre>";
     var_dump($value);
     echo "</pre>";
     die;
 }
-function pd($value)
+function pd(...$value)
 {
     echo "<pre>";
     print_r($value);
     echo "</pre>";
-    // die;
+    die;
 }
 
 function isUrl($value)
